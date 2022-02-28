@@ -206,7 +206,7 @@ Matrix<double> MinimumEnergySpline::createDelta(const Matrix <double>& xc, const
 }
 
 
- Matrix<double> MinimumEnergySpline::createA(const double alpha, const double beta, const Matrix<double> &D, const double h, const unsigned int n)
+Matrix<double> MinimumEnergySpline::createA(const double alpha, const double beta, const Matrix<double> &D, const double h, const unsigned int n)
 {
 	 //Create pentadiagonal matrix A of the non-closed spline
 	 //Use average h step

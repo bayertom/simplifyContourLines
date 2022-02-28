@@ -55,7 +55,7 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 	const clock_t begin_time = clock();
 	int index = 0;
 
-	std::cout << "\n >>> Generalize contour lines: \n";
+	std::cout << "\n >>> PHASE1: Smoothing contour lines: \n";
 
 	for (auto c : contours)
 	{
@@ -99,7 +99,7 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 		{
 			
 			//Create list of predecessors and successors
-			for (int h = 10; h <= 10; h++)
+			for (int h = 1; h <= 6; h++)
 			{
 				std::cout << "h = " << h << ' ';
 				int indexii = 0;
@@ -152,7 +152,8 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 					//if (pot_min >= -0.01)
 					//if (pot_min >= 1.1)
 
-					std::cout << i_min << " " << pot_min << '\n';
+					//std::cout << i_min << " " << pot_min << '\n';
+					std::cout << ".";
 
 					//Amount of shifted points
 					int np = pow(2, h + 1) - 1;
@@ -286,7 +287,7 @@ void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <st
 	const clock_t begin_time = clock();
 	int index = 0;
 
-	std::cout << "\n >>> Minimum energy splines: \n";
+	std::cout << "\n >>> PHASE2: Minimum energy splines: \n";
 
 	for (auto c : contours)
 	{

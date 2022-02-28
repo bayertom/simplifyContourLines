@@ -1,0 +1,46 @@
+﻿  SimplifyContourLines3.cpp
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(77,11): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(84,11): warning C4101: 'd1min': unreferenced local variable
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(88,17): warning C4101: 'i2min': unreferenced local variable
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(89,11): warning C4101: 'd2min': unreferenced local variable
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(83,17): warning C4101: 'i1min': unreferenced local variable
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(221,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(225,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(232,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(255,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(262,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(270,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\MinimumEnergySpline.hpp(343,21): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(95,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(96,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(98,30): warning C4018: '>': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(98,43): warning C4018: '>': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(108,39): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(159,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(185,72): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(269,63): warning C4244: '+=': conversion from 'const double' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(342,58): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(342,100): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(350,58): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(350,100): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(365,70): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(386,23): warning C4018: '<': signed/unsigned mismatch
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(429,29): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(429,29): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(429,50): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(429,50): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(440,54): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(440,21): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\ContourLinesSimplify.hpp(490,23): warning C4244: 'argument': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+E:\Tomas\CPP\simplifyContourLinesEMS\src\DXFExport.hpp(273,40): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+E:\Tomas\CPP\simplifyContourLinesEMS\src\DXFExport.hpp(273,40): warning C4267: 'initializing': conversion from 'size_t' to 'const unsigned int', possible loss of data
+  Generating code
+  2 of 2195 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  SimplifyContourLines3.vcxproj -> E:\Tomas\CPP\simplifyContourLinesEMS\src\x64\Release\SimplifyContourLinesEMS.exe

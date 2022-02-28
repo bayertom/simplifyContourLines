@@ -38,13 +38,14 @@ int main(int argc, char* argv[])
 	std::string path = "E:\\Tomas\\CPP\\SimplifyContourLines\\SimplifyContourLines\\tests\\ALS\\ZM5\\514655_DIP\\DMR5G_vrstevnice01m\\MIMO\\MIMO62\\";
 
 	//Countour line file mask
-	std::string contours_file_mask = "*v279_smooth*.txt";
+	//std::string contours_file_mask = "*v279_smooth*.txt";
+	std::string contours_file_mask = "*vrstevnice*final*CL*27*.csv";
 
 	//Buffer file mask
 	//std::string buff1_file_mask = "*_B1_0_1*.csv";
 	//std::string buff2_file_mask = "*_B2_0_1*.csv";
-	std::string buff1_file_mask = "*_B1_0_1*278*.csv";
-	std::string buff2_file_mask = "*_B2_0_1*279*.csv";
+	std::string buff1_file_mask = "*_B1_0_1*27*.csv";
+	std::string buff2_file_mask = "*_B2_0_1*27*.csv";
 	std::string output_file_name = "MIMO62_5g.xyz";
 
 	//Process command-line argument:
