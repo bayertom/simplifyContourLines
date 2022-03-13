@@ -1,9 +1,4 @@
-// Description: Basic matrices operation
-
-// Copyright (c) 2010 - 2013
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Basic matrix operations
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published

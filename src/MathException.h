@@ -1,9 +1,4 @@
-// Description: General math error class (other math error classes are derived from this class), throw exception
-
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: General math exception class (other math error classes are derived from this class), throw exception
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -25,7 +20,7 @@
 #include "Exception.h"
 
 
-//Math error
+//General math exception class
 template <typename T>
 class MathException : public Exception
 {

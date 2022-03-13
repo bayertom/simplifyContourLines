@@ -91,7 +91,7 @@ void File::loadContours(const TVector <std::string>& cont_files, TVector2D <std:
 }
 
 
-void File::loadBuffers(const TVector <std::string>& buf_files, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_buffers)
+void File::loadBuffers(const TVector <std::string>& buf_files, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_buffers)
 {
 	//Load contour line buffer
 	for (std::string f : buf_files)
@@ -110,18 +110,8 @@ void File::loadBuffers(const TVector <std::string>& buf_files, std::map <double,
 			const double z = contour_buffer[0]->getZ();
 			const double zr = Round::roundNumber(z, 2);
 
-			//Buffer z - dz already created
-			typename std::map <double, TVector <std::shared_ptr<Point3D > > >::iterator  it_contour_buffers = contour_buffers.find(zr);
-			if (it_contour_buffers == contour_buffers.end())
-			{
-				contour_buffers[zr] = contour_buffer;
-			}
-
-			else
-			{
-				contour_buffer.insert(contour_buffer.end(), it_contour_buffers->second.begin(), it_contour_buffers->second.end());
-				it_contour_buffers->second = contour_buffer;
-			}
+			//Create buffer
+			contour_buffers.insert(std::pair < double, TVector < std::shared_ptr < Point3D > >> (zr, contour_buffer));
 		}
 	}
 }

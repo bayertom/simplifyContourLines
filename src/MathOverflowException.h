@@ -1,9 +1,4 @@
-// Description: Math overflow (value too big), throw exception 
-
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Math overflow (value is too big), throw exception 
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -27,7 +22,7 @@
 #include "MathException.h"
 
 
-//Math error: overflow
+//Math overflow (value is too big)
 template <typename T>
 class MathOverflowException : public MathException <T>
 {

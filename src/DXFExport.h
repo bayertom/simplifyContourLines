@@ -1,9 +1,4 @@
-// Description: Export lines, points, polygons to 2D/3D DXF file
-
-// Copyright (c) 2015 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Export contour lines to DXF file
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -27,7 +22,7 @@
 #include "TVector.h"
 #include "TVector2D.h"
 
-//Export to DXF file
+//Export contour lines to DXF file
 class DXFExport
 {
         public:

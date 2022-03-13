@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimplifyContourLines3", "SimplifyContourLines3.vcxproj", "{F2471928-FADD-4494-A22E-553D8B1E36B0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimplifyContourLinesEMS", "SimplifyContourLinesEMS.vcxproj", "{F2471928-FADD-4494-A22E-553D8B1E36B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

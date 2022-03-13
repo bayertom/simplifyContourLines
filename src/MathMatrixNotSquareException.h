@@ -1,10 +1,5 @@
 // Description: Matrix A is not square, throw exception
 
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
-
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
@@ -25,7 +20,7 @@
 #include "MathMatrixException.h"
 
 
-//Matrix error: matrix not square
+//Matrix A is not square
 template <typename TMatrix>
 class MathMatrixNotSquareException : public MathMatrixException <TMatrix>
 {

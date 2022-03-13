@@ -1,9 +1,4 @@
-// Description: Sort Cartesian points stored in list according to their distance from the point
-
-// Copyright (c) 2010 - 2020
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Sort points stored in list according to their distance from a point
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -23,7 +18,7 @@
 #define sortPointsByDist_H
 
 
-//Sorter of points defined by distance from q
+//Sort points stored in list according to their distance from a poi
 class sortPointsByDist
 {
         private:

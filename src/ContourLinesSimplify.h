@@ -1,10 +1,5 @@
-// Description: Simplification of contour lines
-
-// Copyright (c) 2017 - 2018
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
-
+// Description: Contour line simplification using potential and minimum energy splines
+// 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
@@ -21,11 +16,6 @@
 #ifndef ContourLinesSimplify_H
 #define ContourLinesSimplify_H
 
-//#include <ctime>
-//#include <cstdlib>
-//#include <iostream>
-//#include <queue>
-
 #include <memory>
 #include <map>
 
@@ -33,18 +23,20 @@
 #include "Point3D.h"
 
 
-//Contour line simplification
+//Contour line simplification using potential and minimum energy splines
 class ContourLinesSimplify
 {
 	public:
 
-		static void simplifyContourLinesPotentialEBezier(const TVector2D <std::shared_ptr <Point3D > >& contours, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double ang_threshold, const unsigned int k, const int iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified);
-		static std::tuple<double, TVector <std::shared_ptr <Point3D > > > computePotentialEBezier(const int i1, const int i3, const TVector < std::shared_ptr<Point3D > >& contour, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz2);
+		static void smoothContourLinesByPotential(const TVector2D <std::shared_ptr <Point3D > >& contours, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const unsigned int min_points, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified);
 		static void densifyContourLines(const TVector2D <std::shared_ptr <Point3D > >& contours, const double dmin, TVector2D <std::shared_ptr <Point3D > >& contours_dens);
-		static void simplifyContourLinesMinimumEnergy(const TVector2D <std::shared_ptr <Point3D > >& contours, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double alpha, const double beta, const double gamma, const double delta, const bool var_delta, const double kappa, const int nc, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified);
-		static void findAllNN(const TVector <std::shared_ptr <Point3D > >& points, const TVector <std::shared_ptr <Point3D > >& qpoints, TVector <size_t>& knn_ids, TVector <float>& knn_dists);
-		static void findAllNNS(const TVector <std::shared_ptr <Point3D> >& points, const TVector <std::shared_ptr <Point3D> >& qpoints, TVector <size_t>& knn_ids, TVector <float>& knn_dists, TVector <std::shared_ptr <Point3D > >& knn_points);
-		static double getOE3(const TVector <std::shared_ptr <Point3D > >& cp, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz2, const TVector <size_t>& knn_id1, const TVector <size_t>& knn_id2);
+		static void simplifyContourLinesMinimumEnergy(const TVector2D <std::shared_ptr <Point3D > >& contours, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double alpha, const double beta, const double gamma, const double delta, const double kappa, const int min_points, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified);
+		static std::tuple<double, double, double> getNearestLineSegmentPoint(const double xq, const double yq, const TVector <std::shared_ptr <Point3D > >& points);
+
+	private:	
+		static std::tuple<double, TVector <std::shared_ptr <Point3D > >, TVector <float>, TVector <std::shared_ptr <Point3D > >, TVector <float>, TVector <std::shared_ptr <Point3D > > > computePotentialDifferenceBezier(const int i1, const int i3, const TVector < std::shared_ptr<Point3D> >& contour, const TVector2D < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector2D < std::shared_ptr<Point3D > >& contour_points_buffer_dz2, const TVector < std::shared_ptr<Point3D> >& nn_points1, const TVector < std::shared_ptr<Point3D> >& nn_points2, TVector<int>& buffer_ids3, TVector<int>& buffer_ids4);
+		static std::tuple<TVector <float>, TVector <std::shared_ptr <Point3D > > > findNearestNeighbors(const TVector <std::shared_ptr <Point3D> >& qpoints, const TVector2D <std::shared_ptr <Point3D> >& buffers, const int i1, TVector <int>& buffer_ids);
+		static double getOE3(const TVector <std::shared_ptr <Point3D > >& cp, const TVector <std::shared_ptr <Point3D > >& contour_points_buffer_dz1, const TVector <std::shared_ptr <Point3D > >& contour_points_buffer_dz2);
 		static double getOE3Point(const double xc, const double yc, const double xb1, const double yb1, const double xb2, const double yb2);
 
 }; 

@@ -1,9 +1,4 @@
-// Description: Exception file write class
-
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: File write exception
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -22,10 +17,9 @@
 #ifndef FileWriteException_H
 #define FileWriteException_H
 
-
 #include "Exception.h"
 
-//File write error
+//File write exception
 class FileWriteException : public Exception
 {
         protected:

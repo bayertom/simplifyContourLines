@@ -1,9 +1,4 @@
-// Description: Division by zero, throw exception
-
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Division by zero (denominator is too small), throw exception
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -24,7 +19,7 @@
 
 #include "MathException.h"
 
-//Math error: devision by zero
+//Division by zero (denominator is too small)
 template <typename T>
 class MathZeroDevisionException : public MathException <T>
 {

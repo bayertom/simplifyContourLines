@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SimplifyContourLines3.cpp">
+    <ClCompile Include="SimplifyContourLinesEMS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="File.cpp">

@@ -1,10 +1,5 @@
 // Description: Different size of matrices A, B in matrix algebra, throw exception
 
-// Copyright (c) 2010 - 2013
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
-
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
@@ -25,7 +20,7 @@
 #include "MathMatrixException.h"
 
 
-//Matrix error: different size
+//Different size of matrices A, B in matrix algebra
 template <typename TMatrix>
 class MathMatrixDifferentSizeException: public MathMatrixException <TMatrix>
 {

@@ -1,9 +1,4 @@
-// Description: Distance point-line
-
-// Copyright (c) 2010 - 2013
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Distance point and line
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -22,33 +17,16 @@
 #ifndef PointLineDistance_H
 #define PointLineDistance_H
 
-//Point line distance
+//Distance point and line
 class PointLineDistance
 {
         public:
-                template <typename Point>
-                static typename Point::Type getPointLineDistance2D ( const Point &p, const Point &p1, const Point &p2 );
+              
+                static double getPointLineDistance2D ( const double xa, const double ya, const double x1, const double y1, const double x2, const double y2, double & xi, double & yi);
 
-                template <typename T>
-                static T getPointLineDistance2D(const T xa, const T ya, const T x1, const T y1, const T x2, const T y2);
+                static double getPointLineDistance2DSigned ( const double xa, const double ya, const double x1, const double y1, const double x2, const double y2, double& xi, double& yi);
 
-                template <typename T>
-                static T getPointLineDistance2D ( const T xa, const T ya, const T x1, const T y1, const T x2, const T y2, T& xi, T& yi);
-
-                template <typename T>
-                static T getPointLineDistance2DSigned(const T xa, const T ya, const T x1, const T y1, const T x2, const T y2);
-
-                template <typename T>
-                static T getPointLineDistance2DSigned ( const T xa, const T ya, const T x1, const T y1, const T x2, const T y2, T& xi, T& yi);
-
-                template <typename Point>
-                static typename Point::Type getPointLineSegmentDistance2D ( const Point &p, const Point &p1, const Point &p2 );
-
-                template <typename T>
-                static T getPointLineSegmentDistance2D(const T x, const T y, const T x1, const T y1, const T x2, const T y2);
-
-                template <typename T>
-                static T getPointLineSegmentDistance2D(const T x, const T y, const T x1, const T y1, const T x2, const T y2, T &xi , T &yi);
+                static double getPointLineSegmentDistance2D(const double x, const double y, const double x1, const double y1, const double x2, const double y2, double &xi , double &yi);
 
 };
 

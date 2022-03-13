@@ -1,10 +1,5 @@
 // Description: 3D Point
 
-// Copyright (c) 2015 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
-
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
@@ -17,7 +12,6 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this library. If not, see <http://www.gnu.org/licenses/>
-
 
 #ifndef Point3D_H
 #define Point3D_H

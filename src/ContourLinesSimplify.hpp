@@ -1,9 +1,4 @@
-// Description: Simplification of contour lines
-
-// Copyright (c) 2017 - 2018
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Contour line simplification using potential and minimum energy splines
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -22,15 +17,6 @@
 #ifndef ContourLinesSimplify_HPP
 #define ContourLinesSimplify_HPP
 
-/*
-#include <set>
-#include <functional>
-#include <chrono>
-#include <algorithm>  
-#include <cstdlib>
-#include <map>
-*/
-
 #include <memory>
 #include <map>
 
@@ -47,7 +33,7 @@
 #include "sortPointsByDist.h"
 
 	
-void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D <std::shared_ptr <Point3D > > & contours, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double ang_threshold, const unsigned int k, const int iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified)
+void ContourLinesSimplify::smoothContourLinesByPotential(const TVector2D <std::shared_ptr <Point3D > > & contours, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const unsigned int min_points, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified)
 {
 	//Simplify contour lines using potential analogous to outer energy
 	//Increment the step h
@@ -55,7 +41,7 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 	const clock_t begin_time = clock();
 	int index = 0;
 
-	std::cout << "\n >>> PHASE1: Smoothing contour lines: \n";
+	std::cout << "\n>>> PHASE1: Smoothing contour lines \n\n";
 
 	for (auto c : contours)
 	{
@@ -65,123 +51,135 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 		const double z2 = c[0]->getZ() + dz_threshold;
 		const double z2r = Round::roundNumber(z2, 2);
 
-		std::cout << ">>> Z = " << c[0]->getZ() << "m, n = " << c.size() << '\n';
+		std::cout << ">>> Z = " << c[0]->getZ() << "m, n = " << c.size() << ":\n";
 
 		//Find corresponding buffer z - dz
-		TVector < std::shared_ptr<Point3D > > contour_points_buffer_dz1;
-		typename std::map <double, TVector <std::shared_ptr<Point3D > > >::iterator  it_contour_points_buffers_dz1 = contour_points_buffers_dz1.find(z1r);
+		TVector2D < std::shared_ptr<Point3D > > contour_points_buffer_dz1;
 
-		//Buffer z - dz already created
-		if (it_contour_points_buffers_dz1 != contour_points_buffers_dz1.end())
-			contour_points_buffer_dz1 = it_contour_points_buffers_dz1->second;
+		//Find corresponding buffer z - dz
+		auto res1 = contour_points_buffers_dz1.equal_range(z1r);
 
-		//No buffer found
-		else
+		///No buffer found
+		if (res1.first == res1.second)
 			continue;
+
+		// Buffer z - dz already created
+		else
+		{
+			//Copy buffer segments
+			for (auto it = res1.first; it != res1.second; ++it)
+			{
+				if (it->second.size() > min_points)
+					contour_points_buffer_dz1.push_back(it->second);
+			}
+		}
 
 		//Find corresponding buffer z + dz
-		TVector < std::shared_ptr<Point3D > > contour_points_buffer_dz2;
-		typename std::map <double, TVector <std::shared_ptr<Point3D > > >::iterator it_contour_points_buffers_dz2 = contour_points_buffers_dz2.find(z2r);
+		TVector2D < std::shared_ptr<Point3D > > contour_points_buffer_dz2;
 
-		//Buffer z + dz already created
-		if (it_contour_points_buffers_dz2 != contour_points_buffers_dz2.end())
-			contour_points_buffer_dz2 = it_contour_points_buffers_dz2->second;
+		//Find corresponding buffer z - dz
+		auto res2 = contour_points_buffers_dz2.equal_range(z2r);
 
-		//No buffer found
-		else
+		///No buffer found
+		if (res2.first == res2.second)
 			continue;
 
-		//Are there enough points?
-		int nb1 = contour_points_buffer_dz1.size();
-		int nb2 = contour_points_buffer_dz2.size();
-
-		if ((c.size() > k) && (nb1 > k) && (nb2 > k))
+		// Buffer z + dz already created
+		else
 		{
+			//Copy buffer segments
+			for (auto it = res2.first; it != res2.second; ++it)
+			{
+				if (it->second.size() > min_points)
+					contour_points_buffer_dz2.push_back(it->second);
+			}
+		}
+
+		//Are there enough points?
+		if ((c.size() > min_points) && (contour_points_buffers_dz1.size() > 0) && (contour_points_buffers_dz2.size() > 0))
+		{
+			//if (c.size() != 11)
+			//	continue;
+
+			int i1 = 0;
+			int n = c.size();
+
+			//Find NN to contour line vertices
+			TVector<int> buffer_ids1(n, -1), buffer_ids2(n, -1), buffer_ids3(n, -1), buffer_ids4(n, -1);
+			auto [nn_dist1, nn_points1] = findNearestNeighbors(c, contour_points_buffer_dz1, i1, buffer_ids1);
+			auto [nn_dist2, nn_points2] = findNearestNeighbors(c, contour_points_buffer_dz2, i1, buffer_ids2);
 			
 			//Create list of predecessors and successors
-			for (int h = 1; h <= 6; h++)
+			for (int h = 1; h <= 10; h++)
 			{
 				std::cout << "h = " << h << ' ';
-				int indexii = 0;
 
 				//Repeat until any swap is available
-				int i_first = 0, i_last = c.size();
-				TVector <double> pots(c.size(), 1.0e16);
-				TVector2D <std::shared_ptr <Point3D > > bps(c.size());
+				int i_first = 0, i_last = n;
+				TVector <double> pots_diff(n, 1.0e16);
+				TVector2D <std::shared_ptr <Point3D > > bps(n), nn_points3(n), nn_points4(n);
+
 				for (;;)
 				{
 					//Get two consequent edges with the highest replacement ratio
 					int i1 = 0;
 					int i3 = (i1 + 2*h < c.size() ? i1 + 2*h : -1);
 
-					//Actulize mninimum
-					double pot_min = 1.e16;
+					//Minimum values
+					double pot_diff_min = 1.e16;
 					int i_min = -1;
+					TVector <std::shared_ptr <Point3D > > nn_points3_min, nn_points4_min;
 
-					//Compute potential
+					//Compute potential differeces
 					while (i3 != -1)
 					{
 						//std::cout << i1 << " " << i2 << " " << i3  << '\n';
 
-						//Compute potential for all points inside the interval
+						//Compute potentiaå difference over the contour interval c(i, i3) 
 						if (i1 >= i_first && i1 <= i_last)
 						{
-							//Compute potential
-							auto [pot, bp] = computePotentialEBezier(i1, i3, c, contour_points_buffer_dz1, contour_points_buffer_dz2);
-							
-							//Store potential and Bezier vertices
-							pots[i1] = pot;
-							bps[i1] = bp;
+							TVector <float> nn_dist3, nn_dist4;
+							std::tie(pots_diff[i1], bps[i1], nn_dist3, nn_points3[i1], nn_dist4, nn_points4[i1]) = computePotentialDifferenceBezier(i1, i3, c, contour_points_buffer_dz1, contour_points_buffer_dz2, nn_points1, nn_points2, buffer_ids3, buffer_ids4);
 						}
 
-						//Actualize maximum replacement potential: c(i, i3) as much as possible in the middle of the buffer
-						if (pots[i1] < pot_min)
+						//Actualize minimum potential difference
+						if (pots_diff[i1] < pot_diff_min)
 						{
 							i_min = i1;
-							pot_min = pots[i1];
+							pot_diff_min = pots_diff[i1];
+							nn_points3_min = nn_points3[i1];
+							nn_points4_min = nn_points4[i1];
 						}
 
-						//Increment vertices
+						//Increment interval
 						i1 = (i1 + h < c.size() ? i1 + h : -1);
 						i3 = (i1 + 2 * h < c.size() ? i1 + 2 * h : -1);
 					}
 
-					//A suitable vertex with the maximum replacement potential has not been found
-					if (pot_min >= -0.1)
+					//A suitable vertex interval (i1, i3) with the maximum potential difference has not been found
+					if (pot_diff_min >= -0.1)
 						break;
-					//if (pot_min >= -0.01)
-					//if (pot_min >= 1.1)
 
-					//std::cout << i_min << " " << pot_min << '\n';
-					std::cout << ".";
+					//Update contour line vertices between (i1, i3) by Bezier points
+					std::copy_n(bps[i_min].cbegin(), bps[i_min].size(), &c[i_min]);
+	
+					//Update nearest neighbors of the actualized contour part between (i1, i3)
+					std::copy_n(nn_points3_min.cbegin(), nn_points3_min.size(), &nn_points1[i_min]);
+					std::copy_n(nn_points4_min.cbegin(), nn_points3_min.size(), &nn_points2[i_min]);
+
+					//std::cout << i_min << " " << pot_diff_min << '\n';
+					//std::cout << ".";
 
 					//Amount of shifted points
 					int np = pow(2, h + 1) - 1;
 
-					//Get remaining indices
+					//Get last point of the interval
 					int i3_min = (i_min + 2 * h < c.size() ? i_min + 2 * h : -1);
 
-					//Add first Bezier control point
-					TVector <double> xp, yp;
-		
-					//Update contour line vertices by Bezier points
-					int j = 0;
-					for (int i = i_min; i <= i3_min; i++, j++)
-					{
-						if (j >= bps[i_min].size())
-						{
-							std::cout << "error";
-							std::cout << i_min << " " << i3_min << bps[i_min].size();
-						}
-
-						c[i]->setX(bps[i_min][j]->getX());
-						c[i]->setY(bps[i_min][j]->getY());
-					}
-
-					//Actualize start index to prev-prev element
+					//Actualize start index for potential recomputation to prev-prev element
 					i_first = (i_min - 3 * h < 0 ? 0 : i_min - 3 * h);
 	
-					//Actualize end index to next-next element
+					//Actualize end index for potential recomputation to next-next element
 					i_last = (i_min + 3 * h < c.size() ? i_min + 3 * h : c.size() - 1); 
 				}
 			}
@@ -190,6 +188,8 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 			contours_polylines_simplified.push_back(c);
 
 			index++;
+
+			std::cout << '\n';
 		}
 	}
 
@@ -198,53 +198,42 @@ void ContourLinesSimplify::simplifyContourLinesPotentialEBezier(const TVector2D 
 }
 
 
-std::tuple<double, TVector <std::shared_ptr <Point3D > > > ContourLinesSimplify::computePotentialEBezier(const int i1, const int i3, const TVector < std::shared_ptr<Point3D> >& contour, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz2)
+std::tuple<double, TVector <std::shared_ptr <Point3D > >, TVector <float>, TVector <std::shared_ptr <Point3D > >, TVector <float>, TVector <std::shared_ptr <Point3D > > > ContourLinesSimplify::computePotentialDifferenceBezier(const int i1, const int i3, const TVector < std::shared_ptr<Point3D> >& contour, const TVector2D < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector2D < std::shared_ptr<Point3D > >& contour_points_buffer_dz2, const TVector < std::shared_ptr<Point3D> >& nn_points1, const TVector < std::shared_ptr<Point3D> >& nn_points2, TVector<int>& buffer_ids3, TVector<int>& buffer_ids4)
 {
-	//Compute simplification potential of the created segment using Energy function
+	//Compute simplification potential difference of the segment (i1, i3)
 	//Approximate buffer, smooth points using deCasteljau algorithm
-	TVector <size_t> knn_id1, knn_id2, knn_id3, knn_id4;
-	TVector <float> knn_dist1, knn_dist2, knn_dist3, knn_dist4;
-	TVector < std::shared_ptr<Point3D > > bps, knn_points1, knn_points2, knn_points3, knn_points4;
-
-	//Compute length of the segment
-	const double length = EuclDistance::getEuclDistance2D(contour[i1]->getX(), contour[i1]->getY(), contour[i3]->getX(), contour[i3]->getY());
-
-	//Identical points
-	if (length < 0.001)
-		return { 1.0e16, bps };
-
-	//Get control points, vertices of the contour line in the given interval
-	TVector <std::shared_ptr <Point3D > > cp(contour.cbegin() + i1, contour.cbegin() + i3 + 1);
-
-	//Find NN to newly created vertices
-	findAllNNS(contour_points_buffer_dz1, cp, knn_id1, knn_dist1, knn_points1);
-	findAllNNS(contour_points_buffer_dz2, cp, knn_id2, knn_dist2, knn_points2);
+	
+	//Get part of the contour line and correpsonding nearest points
+	const TVector <std::shared_ptr <Point3D > > cp(contour.cbegin() + i1, contour.cbegin() + i3 + 1);
+	const TVector <std::shared_ptr <Point3D > > nn_points1p(nn_points1.cbegin() + i1, nn_points1.cbegin() + i3 + 1);
+	const TVector <std::shared_ptr <Point3D > > nn_points2p(nn_points2.cbegin() + i1, nn_points2.cbegin() + i3 + 1);
 
 	//Compute potential of newly created vertices
-	double pot_sum_old = getOE3(cp, contour_points_buffer_dz1, contour_points_buffer_dz2, knn_id1, knn_id2);
+	double pot_sum_old = getOE3(cp, nn_points1p, nn_points2p);
 
-	//Compute points on the Bezier curve
+	//Compute contour points on the Bezier curve
+	TVector < std::shared_ptr<Point3D > > bps;
 	for (int i = 0; i < cp.size(); i++)
 	{
 		//Get u parameter
-		double u = (double)(i) / (cp.size() - 1);
+		const double u = (double)(i) / (cp.size() - 1);
 
 		//Compute Bezier point
 		std::shared_ptr <Point3D> bp = DeCasteljau::computeBezierPoint(u, cp);
-		
+
 		//Add to the list
 		bps.push_back(bp);
 	}
 
-	//Find NN to newly created vertices
-	findAllNNS(contour_points_buffer_dz1, bps, knn_id3, knn_dist3, knn_points3);
-	findAllNNS(contour_points_buffer_dz2, bps, knn_id4, knn_dist4, knn_points4);
+	//Find NN to the contour points formed by Bezier vertices
+	auto [nn_dist3p, nn_points3p] = findNearestNeighbors(bps, contour_points_buffer_dz1, i1, buffer_ids3);
+	auto [nn_dist4p, nn_points4p] = findNearestNeighbors(bps, contour_points_buffer_dz2, i1, buffer_ids4);
 
 	//Compute potential of newly created vertices
-	double pot_sum_new = getOE3(bps, contour_points_buffer_dz1, contour_points_buffer_dz2, knn_id3, knn_id4);
+	const double pot_sum_new = getOE3(bps, nn_points3p, nn_points4p);
 
-	//return (pot_sum_new - pot_sum_old)/ pot_sum_old;
-	return { pot_sum_new - pot_sum_old, bps };
+	//Compute potential improvement
+	return { pot_sum_new - pot_sum_old, bps, nn_dist3p, nn_points3p,  nn_dist4p, nn_points4p};
 }
 
 
@@ -282,12 +271,13 @@ void ContourLinesSimplify::densifyContourLines(const TVector2D <std::shared_ptr 
 }
 
 
-void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <std::shared_ptr <Point3D > >& contours, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::map <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double alpha, const double beta, const double gamma, const double delta, const bool var_delta, const double kappa, const int nc, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified)
+void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <std::shared_ptr <Point3D > >& contours, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz1, std::multimap <double, TVector < std::shared_ptr < Point3D > > >& contour_points_buffers_dz2, const double z_step, const double dz_threshold, const double alpha, const double beta, const double gamma, const double delta, const double kappa, const int min_points, const int max_iter, TVector2D <std::shared_ptr <Point3D > >& contours_polylines_simplified)
 {
+	//Simplify contour lines using the minimum energy spline
 	const clock_t begin_time = clock();
 	int index = 0;
 
-	std::cout << "\n >>> PHASE2: Minimum energy splines: \n";
+	std::cout << "\n\n>>> PHASE2: Minimum energy splines \n\n";
 
 	for (auto c : contours)
 	{
@@ -297,63 +287,53 @@ void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <st
 		const double z2 = c[0]->getZ() + dz_threshold;
 		const double z2r = Round::roundNumber(z2, 2);
 
-		std::cout << ">>> Z = " << c[0]->getZ() << "m, n = " << c.size() << '\n';
+		std::cout << ">>> Z = " << c[0]->getZ() << "m, n = " << c.size() << ":\n";
 
 		//Find corresponding buffer z - dz
-		TVector < std::shared_ptr<Point3D > > contour_points_buffer_dz1;
-		typename std::map <double, TVector <std::shared_ptr<Point3D > > >::iterator  it_contour_points_buffers_dz1 = contour_points_buffers_dz1.find(z1r);
+		TVector2D < std::shared_ptr<Point3D > > contour_points_buffer_dz1;
 
-		//Buffer z - dz already created
-		if (it_contour_points_buffers_dz1 != contour_points_buffers_dz1.end())
-			contour_points_buffer_dz1 = it_contour_points_buffers_dz1->second;
+		//Find corresponding buffer z - dz
+		auto res1 = contour_points_buffers_dz1.equal_range(z1r);
 
-		//No buffer found
-		else
+		///No buffer found
+		if (res1.first == res1.second)
 			continue;
+
+		// Buffer z - dz already created
+		else
+		{
+			//Copy buffer segments
+			for (auto it = res1.first; it != res1.second; ++it)
+			{
+				if (it->second.size() > min_points)
+					contour_points_buffer_dz1.push_back(it->second);
+			}
+		}
 
 		//Find corresponding buffer z + dz
-		TVector < std::shared_ptr<Point3D > > contour_points_buffer_dz2;
-		typename std::map <double, TVector <std::shared_ptr<Point3D > > >::iterator it_contour_points_buffers_dz2 = contour_points_buffers_dz2.find(z2r);
+		TVector2D < std::shared_ptr<Point3D > > contour_points_buffer_dz2;
 
-		//Buffer z + dz already created
-		if (it_contour_points_buffers_dz2 != contour_points_buffers_dz2.end())
-			contour_points_buffer_dz2 = it_contour_points_buffers_dz2->second;
+		//Find corresponding buffer z - dz
+		auto res2 = contour_points_buffers_dz2.equal_range(z2r);
 
-		//No buffer found
-		else
+		///No buffer found
+		if (res2.first == res2.second)
 			continue;
 
-		//Remove duplicate points
-		contour_points_buffer_dz1.erase(std::unique(contour_points_buffer_dz1.begin(), contour_points_buffer_dz1.end(), isEqualPointByPlanarCoordinates<std::shared_ptr <Point3D > >()), contour_points_buffer_dz1.end());
-		contour_points_buffer_dz2.erase(std::unique(contour_points_buffer_dz2.begin(), contour_points_buffer_dz2.end(), isEqualPointByPlanarCoordinates<std::shared_ptr <Point3D > >()), contour_points_buffer_dz2.end());
+		// Buffer z + dz already created
+		else
+		{
+			//Copy buffer segments
+			for (auto it = res2.first; it != res2.second; ++it)
+			{
+				if (it->second.size() > min_points)
+					contour_points_buffer_dz2.push_back(it->second);
+			}
+		}
 
 		//Are there enough contour line points?
-		if ((c.size() > nc) && (contour_points_buffer_dz1.size() > nc) && (contour_points_buffer_dz2.size() > nc))
+		if ((c.size() > min_points) && (contour_points_buffers_dz1.size() > 0) && (contour_points_buffers_dz2.size() > 0))
 		{
-			//Find nearest neighbors
-			TVector <size_t> knn_id1, knn_id2;
-			TVector <float> knn_dist1, knn_dist2;
-
-			//Create approximate vertical buffer: find nearest points on both buffers
-			findAllNN(contour_points_buffer_dz1, c, knn_id1, knn_dist1);
-			findAllNN(contour_points_buffer_dz2, c, knn_id2, knn_dist2);
-
-			//Create buffer 1 matrix
-			Matrix<double> xb1(contour_points_buffer_dz1.size(), 1), yb1(contour_points_buffer_dz1.size(), 1);
-			for (int j = 0; j < contour_points_buffer_dz1.size(); j++)
-			{
-				xb1(j, 0) = contour_points_buffer_dz1[j]->getX();
-				yb1(j, 0) = contour_points_buffer_dz1[j]->getY();
-			}
-
-			//Create buffer 2 matrix
-			Matrix<double> xb2(contour_points_buffer_dz2.size(), 1), yb2(contour_points_buffer_dz2.size(), 1);
-			for (int j = 0; j < contour_points_buffer_dz2.size(); j++)
-			{
-				xb2(j, 0) = contour_points_buffer_dz2[j]->getX();
-				yb2(j, 0) = contour_points_buffer_dz2[j]->getY();
-			}
-
 			//Process each fragment
 			const int n_max = 150;
 			int i_last = n_max;
@@ -365,33 +345,10 @@ void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <st
 				i_last = (c.size() - i_last_min > 10 ? i_last_min : c.size() - 1);
 				std::cout << i << ":" << i_last << "  ";
 
-				//Create submatrix of knn
-				TVector <size_t> knn_idf1, knn_idf2;
-				std::copy(knn_id1.begin() + i, knn_id1.begin() + i_last, std::back_inserter(knn_idf1));
-				std::copy(knn_id2.begin() + i, knn_id2.begin() + i_last, std::back_inserter(knn_idf2));
-
-				//Create contour matrix
-				Matrix<double> xc(i_last - i + 1, 1), yc(i_last - i + 1, 1);
-				for (int j = 0; j < i_last - i + 1; j++)
-				{
-					xc(j, 0) = c[i + j]->getX();
-					yc(j, 0) = c[i + j]->getY();
-				}
-
 				//Create minimum energy spline
-				auto [xcn, ycn] = MinimumEnergySpline::createSpline(xc, yc, xb1, yb1, xb2, yb2, knn_idf1, knn_idf2, alpha, beta, gamma, delta, var_delta, kappa, max_iter);
-
-				//Convert spline to contour line
-				TVector <std::shared_ptr <Point3D > > contour_polyline_simplified;
-				for (int j = 0; j < xc.rows(); j++)
-				{
-					//Create new point
-					std::shared_ptr<Point3D > p = std::make_shared<Point3D >(xcn(j, 0), ycn(j, 0), c[0]->getZ());
-
-					//Add point to the contour line
-					contour_polyline_simplified.push_back(p);
-				}
-
+				int m = i_last - i + 1;
+				TVector <std::shared_ptr <Point3D > > contour_polyline_simplified = MinimumEnergySpline::createSpline(c, contour_points_buffer_dz1, contour_points_buffer_dz2, i, m, alpha, beta, gamma, delta, kappa, max_iter);
+				
 				//Modify the junction points
 				if (i > 0)
 				{
@@ -406,7 +363,6 @@ void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <st
 					//Modify the junction point
 					p_last->setX(xa); p_last->setY(ya);
 					p_first->setX(xa); p_first->setY(ya);
-
 				}
 
 				//Add simplified contour to the list of contours
@@ -423,85 +379,77 @@ void ContourLinesSimplify::simplifyContourLinesMinimumEnergy(const TVector2D <st
 }
 
 
-void ContourLinesSimplify::findAllNN(const TVector <std::shared_ptr <Point3D > >& points, const TVector <std::shared_ptr <Point3D > >& qpoints, TVector <size_t>& knn_ids, TVector <float>& knn_dists)
+std::tuple<TVector <float>, TVector <std::shared_ptr <Point3D > > > ContourLinesSimplify::findNearestNeighbors(const TVector <std::shared_ptr <Point3D> >& qpoints, const TVector2D <std::shared_ptr <Point3D> >& buffers, const int i1, TVector <int> &buffer_ids)
 {
 	//Find nearest neighbor to any contour line vertex
-	const int n = points.size(), nq = qpoints.size();
+	const int n = qpoints.size();
 
-	knn_ids.clear(); knn_dists.clear();
+	TVector <float> nn_dists(n, MAX_FLOAT);
+	TVector <std::shared_ptr <Point3D > > nn_points (n);
 
-	for (int i = 0; i < qpoints.size(); i++)
+	//Process all query points
+	for (int i = 0; i < n; i++)
 	{
-		//Find element closest to q
-		sortPointsByDist sd(qpoints[i]);
-		auto it_min = min_element(points.begin(), points.end(), sd);
+		//Check specific buffer fragments
+		const int j_start_buff = (buffer_ids[i + i1] == -1 ? 0 : buffer_ids[i + i1]);
+		const int j_end_buff = (buffer_ids[i + i1] == -1 ? buffers.size() : j_start_buff + 1);
 
-		//Get its distance
-		const float d_min = EuclDistance::getEuclDistance2D((*it_min)->getX(), (*it_min)->getY(), qpoints[i]->getX(), qpoints[i]->getY());
-
-		//Get its index
-		const size_t i_min = std::distance(points.begin(), it_min);
-
-		//Add to the list
-		knn_ids.push_back(i_min);
-		knn_dists.push_back(d_min);
-	}
-}
-
-
-void ContourLinesSimplify::findAllNNS(const TVector <std::shared_ptr <Point3D> >& points, const TVector <std::shared_ptr <Point3D> >& qpoints, TVector <size_t>& knn_ids, TVector <float>& knn_dists, TVector <std::shared_ptr <Point3D > >& knn_points)
-{
-	//Find nearest neighbor to any contour line segment
-	const double l_min = 50.0;
-	for (int i = 0; i < qpoints.size(); i++)
-	{
-		//Check all line segments
-		int i_min = -1;
-		double d_min = 1.0e16, xi_min = 0, yi_min = 0;
-
-		for (int j = 0; j < points.size() - 1; j++)
+		for (int j = j_start_buff;j < j_end_buff; j++)
 		{
-			//Length of the segment
-			const double dx = points[j]->getX() - points[j+1]->getX();
-			const double dy = points[j]->getY() - points[j + 1]->getY();
-			double l = sqrt(dx * dx + dy * dy);
+			//Find nearest line segment point
+			const auto [d_min, xi_min, yi_min] = getNearestLineSegmentPoint(qpoints[i]->getX(), qpoints[i]->getY(), buffers[j]);
 
-			//Avoid too long segments
-			if (l < l_min)
+			//We found a closer point
+			if (d_min < nn_dists[i])
 			{
-				double xi, yi;
-				double d = PointLineDistance::getPointLineSegmentDistance2D(qpoints[i]->getX(), qpoints[i]->getY(), points[j]->getX(), points[j]->getY(), points[j + 1]->getX(), points[j + 1]->getY(), xi, yi);
+				//Create nearest point
+				std::shared_ptr <Point3D> p_min = std::make_shared<Point3D>(xi_min, yi_min);
 
-				//Remember actual minimum
-				if (d < d_min)
-				{
-					d_min = d; i_min = j;
-					xi_min = xi; yi_min = yi;
-				}
+				//Actualize lists of neighbors
+				nn_dists[i] = d_min;
+				nn_points[i] = p_min;
+
+				//Actualize nearest buffer fragment
+				buffer_ids[i + i1] = j;
 			}
 		}
-
-		//Create nearest point
-		std::shared_ptr <Point3D> p_min = std::make_shared<Point3D>(xi_min, yi_min);
-
-
-		//Add to the list
-		knn_ids.push_back(i_min);
-		knn_dists.push_back(d_min);
-		knn_points.push_back(p_min);
 	}
+
+	return { nn_dists, nn_points };
 }
 
 
-double ContourLinesSimplify::getOE3(const TVector <std::shared_ptr <Point3D > >& cp, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz1, const TVector < std::shared_ptr<Point3D > >& contour_points_buffer_dz2, const TVector <size_t>& knn_id1, const TVector <size_t>& knn_id2)
+std::tuple<double, double, double> ContourLinesSimplify::getNearestLineSegmentPoint(const double xq, const double yq, const TVector <std::shared_ptr <Point3D > > &points)
+{
+	//Check all line segments
+	double d_min = 1.0e16, xi_min = 0, yi_min = 0;
+
+	for (int i = 0; i < points.size() - 1; i++)
+	{
+		double xi, yi;
+		double d = PointLineDistance::getPointLineSegmentDistance2D(xq, yq, points[i]->getX(), points[i]->getY(), points[i + 1]->getX(), points[i + 1]->getY(), xi, yi);
+		
+		//Remember actual minimum
+		if (d < d_min)
+		{
+			d_min = d;
+			xi_min = xi; yi_min = yi;
+		}
+	}
+
+	return { d_min, xi_min, yi_min };
+}
+
+
+double ContourLinesSimplify::getOE3(const TVector <std::shared_ptr <Point3D > >& cp, const TVector <std::shared_ptr <Point3D > >& contour_points_buffer_dz1, const TVector <std::shared_ptr <Point3D > >& contour_points_buffer_dz2)
 {
 	//Compute outer energy (potential) of shifted vertices, var 3
 	double pot_sum = 0;
 	for (int i = 0; i < cp.size(); i++)
 	{
 		//Compute potential, corresponding to outer enetgy 3
-		double pot = getOE3Point(cp[i]->getX(), cp[i]->getY(), contour_points_buffer_dz1[knn_id1[i]]->getX(), contour_points_buffer_dz1[knn_id1[i]]->getY(),
-			contour_points_buffer_dz2[knn_id2[i]]->getX(), contour_points_buffer_dz2[knn_id2[i]]->getY());
+		double pot = getOE3Point(cp[i]->getX(), cp[i]->getY(), contour_points_buffer_dz1[i]->getX(), contour_points_buffer_dz1[i]->getY(),
+			contour_points_buffer_dz2[i]->getX(), contour_points_buffer_dz2[i]->getY());
 
 		//Summarize potential
 		pot_sum += pot;

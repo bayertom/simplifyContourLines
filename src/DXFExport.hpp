@@ -1,10 +1,5 @@
 // Description: Export lines, points, polygons to 2D/3D DXF file
 
-// Copyright (c) 2015 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
-
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
@@ -31,16 +26,14 @@
 
 
 #include "Const.h"
-
 #include "Point3D.h"
-
 #include "FileWriteException.h"
 
 
 template <typename T>
 void DXFExport::exportContourLinesToDXF(const std::string &file_name, TVector2D <std::shared_ptr <Point3D> > contours_polylines, const T font_height)
 {
-	//Export contour lines given by polylines to DXF file
+	//Export contour lines given to DXF file
 	const unsigned int color_cont = 1, color_cont_points = 5;
 	const std::string level_cont = "contour_lines", level_cont_points = "contour_lines_points", level_points_labels = "dt_points_labels";
 
@@ -267,12 +260,12 @@ void DXFExport::createLine (std::ofstream & file, const std::string &layer_name,
 }
 
 
-
 void DXFExport::processPolyline(std::ofstream & file, TVector <std::shared_ptr<Point3D > > polyline, const std::string &layer_name, const unsigned int color)
 {
+	//Process polyline
 	const unsigned int n = polyline.size();
 
-	//Process halfedges
+	//Process halfedges one by one
 	for (unsigned int i = 0; i < n - 1; i++)
 	{
 		// Get start point
@@ -289,6 +282,7 @@ void DXFExport::processPolyline(std::ofstream & file, TVector <std::shared_ptr<P
 		createLine(file, layer_name, x1, y1, z1, x2, y2, z2, color);
 	}
 }
+
 
 template <typename T>
 std::string DXFExport::to_string(const T value, const unsigned short dec_places)

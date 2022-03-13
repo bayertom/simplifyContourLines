@@ -1,9 +1,4 @@
-// Description: Singular matrix error class
-
-// Copyright (c) 2010 - 2016
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Singular matrix exception class
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -25,7 +20,7 @@
 #include "MathMatrixException.h"
 
 
-//Matrix error: singular matrix
+//Singular matrix exception
 template <typename TMatrix>
 class MathMatrixSingularException : public MathMatrixException <TMatrix>
 {

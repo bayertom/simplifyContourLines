@@ -1,9 +1,4 @@
-// Description: Comparision of two Points according to its planar coordinates
-
-// Copyright (c) 2010 - 2018
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Comparision of two points according to their planar coordinates
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -22,8 +17,7 @@
 #ifndef isEqualPointByPlanarCoordinates_H
 #define isEqualPointByPlanarCoordinates_H
 
-
-//Comparator, are two points equal by planar coordinates? (Generic comparator)
+//Comparator, are two points equal by planar coordinates?
 template <typename Point>
 class isEqualPointByPlanarCoordinates
 {

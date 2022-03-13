@@ -1,9 +1,4 @@
-// Description: Index ouf of bound, throw exception
-
-// Copyright (c) 2010 - 2013
-// Tomas Bayer
-// Charles University in Prague, Faculty of Science
-// bayertom@natur.cuni.cz
+// Description: Index ouf of bound exception
 
 // This library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published
@@ -25,7 +20,7 @@
 #include "Exception.h"
 
 
-//Index out of bound error
+//Index out of bound exception
 class IndexOutOfBoundException : public Exception
 {
         protected:
